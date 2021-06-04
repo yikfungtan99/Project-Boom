@@ -17,7 +17,7 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     public void RpcSetUp(GameObject car, GameObject drone)
     {
-        if (!hasAuthority) return;
+        //if (!hasAuthority) return;
 
         this.car = car;
         this.drone = drone;
@@ -28,10 +28,12 @@ public class Player : NetworkBehaviour
 
         car_control.owner = this;
 
-        CameraControls.Instance.SetUp(this, car_control, art_control, drone_control);
-        HudManager.Instance.SetPlayer(this);
-
-        if(car_control != null) SwitchMode(car_control);
+        if (hasAuthority)
+        {
+            CameraControls.Instance.SetUp(this, car_control, art_control, drone_control);
+            HudManager.Instance.SetPlayer(this);
+            if (car_control != null) SwitchMode(car_control);
+        }
     }
 
     // Update is called once per frame

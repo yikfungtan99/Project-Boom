@@ -61,7 +61,7 @@ public class ArtilleryControl : PlayerMode
 
     [HideInInspector] public string currentShellInfo;
 
-    private int shellSelect = 0;
+    [SyncVar] private int shellSelect = 0;
 
     [Header("Effect")]
     [SerializeField] private ParticleSystem smoke;
@@ -102,7 +102,7 @@ public class ArtilleryControl : PlayerMode
         if (Input.GetKeyDown(KeyCode.Q))
         {
             shellSelect -= 1;
-            if(shellSelect < 0)
+            if (shellSelect < 0)
             {
                 shellSelect = shellInventory.Count;
             }
@@ -158,11 +158,22 @@ public class ArtilleryControl : PlayerMode
     private void LoadShell()
     {
         selectedShellIvt.count -= 1;
-        currentShell = selectedShellIvt.shellObject.shell;
+        CmdLoadShell();
         chamberCount += 1;
     }
 
-   
+    [Command]
+    private void CmdLoadShell()
+    {
+        RpcLoadShell();
+    }
+
+    [ClientRpc]
+    private void RpcLoadShell()
+    {
+        currentShell = selectedShellIvt.shellObject.shell;
+    }
+
     private void ForceInput()
     {
         if (Input.GetKey(KeyCode.LeftShift))
@@ -183,15 +194,17 @@ public class ArtilleryControl : PlayerMode
         {
             if (chamberCount <= 0) return;
             Fire();
+            if (isReloading)
+            {
+                isReloading = false;
+                currentReloadTime = reloadTime;
+            }
         }
     }
 
     private void Fire()
     {
-        GameObject firedProjectile = Instantiate(currentShell, artilleryFirePoint.position, artilleryFirePoint.rotation);
-        firedProjectile.GetComponent<Shell>().SetOwner(car.owner);
-        firedProjectile.GetComponent<Rigidbody>().AddForce(artilleryFirePoint.forward * force, ForceMode.Impulse);
-        CmdFire(firedProjectile);
+        CmdFire(force);
         chamberCount -= 1;
         if (chamberCount <= 0)
         {
@@ -200,21 +213,19 @@ public class ArtilleryControl : PlayerMode
     }
 
     [Command]
-    private void CmdFire(GameObject projectile)
+    private void CmdFire(float force)
     {
-        if (projectile == null)
-        {
-            print("no projectile");
-            return;
-        }
-        
-        NetworkServer.Spawn(projectile);
-        RpcFire(projectile);
+        GameObject firedProjectile = Instantiate(currentShell, artilleryFirePoint.position, artilleryFirePoint.rotation);
+        NetworkServer.Spawn(firedProjectile);
+        RpcFire(firedProjectile, force);
     }
 
     [ClientRpc]
-    private void RpcFire(GameObject shell)
+    private void RpcFire(GameObject projectile, float force)
     {
+        print(force);
+        projectile.GetComponent<Shell>().SetOwner(car.owner);
+        projectile.GetComponent<Rigidbody>().AddForce(artilleryFirePoint.forward * force, ForceMode.Impulse);
         smoke.Play();
     }
 

@@ -27,6 +27,8 @@ public class Shell : NetworkBehaviour
     {
         if (!impacted)
         {
+            print(collision.gameObject);
+
             float distance = Vector3.Distance(transform.position, car.position);
 
             impacted = true;
