@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Mirror;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ public enum ModeType
     DRONE
 }
 
-public abstract class PlayerMode : MonoBehaviour
+public abstract class PlayerMode : NetworkBehaviour
 {
     public ModeType mode;
     protected bool modeActive = false;

@@ -18,17 +18,9 @@ public class CameraRotator : MonoBehaviour
     private float mouseAngle;
     public float angleToRotate;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
-        if (Player.Instance.currentMode.mode != ModeType.DRIVE) return;
-
         if (Input.GetMouseButton(0))
         {
             if(released == true)

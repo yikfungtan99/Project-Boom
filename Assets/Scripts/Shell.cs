@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using Mirror;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shell : MonoBehaviour
+public class Shell : NetworkBehaviour
 {
     public Player player;
     private Transform car;
@@ -10,36 +11,16 @@ public class Shell : MonoBehaviour
 
     [SerializeField] private TrailRenderer trail;
 
-    [SerializeField] private float currentInterval;
-    private float trailInterval;
-
     public float explosionForce;
     public float explosionRadius;
 
     [SerializeField] private GameObject explosionEffect;
 
-    private Rigidbody rb; 
-
     // Start is called before the first frame update
-    void Start()
+    public void SetOwner(Player player)
     {
-        car = player.Car.transform;
-        rb = GetComponent<Rigidbody>();
-        //trail.AddPosition(transform.position);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        //if(currentInterval >= trailInterval)
-        //{
-        //    trail.AddPosition(transform.position);
-        //    currentInterval = 0;
-        //}
-        //else
-        //{
-        //    currentInterval += Time.deltaTime;
-        //}
+        this.player = player;
+        car = player.car.transform;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -47,7 +28,7 @@ public class Shell : MonoBehaviour
         if (!impacted)
         {
             float distance = Vector3.Distance(transform.position, car.position);
-            print(distance);
+
             impacted = true;
 
             ExplosionForce();

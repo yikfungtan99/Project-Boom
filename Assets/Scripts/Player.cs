@@ -1,46 +1,51 @@
-﻿using System.Collections;
+﻿using Mirror;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
-    private static Player _instance;
-    public static Player Instance { get => _instance; }
-
     public PlayerMode currentMode;
 
-    public GameObject Car;
+    public GameObject car;
+    public GameObject drone;
 
     [SerializeField] private CarControl car_control;
     [SerializeField] private ArtilleryControl art_control;
     [SerializeField] private DroneControl drone_control;
 
-    private void Awake()
+    [ClientRpc]
+    public void RpcSetUp(GameObject car, GameObject drone)
     {
-        _instance = this;
-    }
+        if (!hasAuthority) return;
 
-    private void Start()
-    {
-        SwitchMode(car_control);
+        this.car = car;
+        this.drone = drone;
+
+        car_control = car.GetComponent<CarControl>() == null ? null : car.GetComponent<CarControl>() ;
+        art_control = car.GetComponent<ArtilleryControl>() == null ? null : car.GetComponent<ArtilleryControl>();
+        drone_control = drone.GetComponent<DroneControl>() == null ? null : drone.GetComponent<DroneControl>();
+
+        car_control.owner = this;
+
+        CameraControls.Instance.SetUp(this, car_control, art_control, drone_control);
+        HudManager.Instance.SetPlayer(this);
+
+        if(car_control != null) SwitchMode(car_control);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!hasAuthority) return;
+
         if (Input.GetKeyDown(KeyCode.Space) && currentMode == car_control)
         {
             SwitchMode(art_control);
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape) && currentMode == art_control)
-        {
-            SwitchMode(car_control);
-        }
-
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            
             if(currentMode.mode == ModeType.DRONE)
             {
                 SwitchMode(car_control);

@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class CarControl : PlayerMode
 {
-    [SerializeField] private CarProperties car;
+    public Player owner;
+    public CinemachineVirtualCamera carCam;
 
     [Header("Wheels")]
     [SerializeField] private WheelCollider[] wheels;
@@ -21,15 +23,10 @@ public class CarControl : PlayerMode
     private float curSpeed;
     private float curSteerAngle;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
+        if (!hasAuthority) return;
         WheelModelUpdate();
         if (!modeActive) return;
         Inputs();
