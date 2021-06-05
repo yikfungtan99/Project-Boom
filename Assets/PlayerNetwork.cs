@@ -9,6 +9,8 @@ public class PlayerNetwork : NetworkBehaviour
     [SerializeField] private GameObject dronePrefab;
     [SerializeField] private Player player;
 
+    public GameObject car;
+
     public override void OnStartAuthority()
     {
         base.OnStartAuthority();

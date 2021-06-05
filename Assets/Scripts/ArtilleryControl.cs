@@ -6,18 +6,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ShellInventory
-{
-    public ShellObject shellObject;
-    public int count;
-
-    public ShellInventory(ShellObject shellObject, int count)
-    {
-        this.shellObject = shellObject;
-        this.count = count;
-    }
-}
-
 public class ArtilleryControl : PlayerMode
 {
     [SerializeField] private CarControl car;
@@ -204,7 +192,7 @@ public class ArtilleryControl : PlayerMode
 
     private void Fire()
     {
-        CmdFire(force);
+        CmdFire(force, car.owner);
         chamberCount -= 1;
         if (chamberCount <= 0)
         {
@@ -213,18 +201,17 @@ public class ArtilleryControl : PlayerMode
     }
 
     [Command]
-    private void CmdFire(float force)
+    private void CmdFire(float force, Player player)
     {
         GameObject firedProjectile = Instantiate(currentShell, artilleryFirePoint.position, artilleryFirePoint.rotation);
         NetworkServer.Spawn(firedProjectile);
-        RpcFire(firedProjectile, force);
+        RpcFire(firedProjectile, force, player, player.car.transform);
     }
 
     [ClientRpc]
-    private void RpcFire(GameObject projectile, float force)
+    private void RpcFire(GameObject projectile, float force, Player owner, Transform car)
     {
-        print(force);
-        projectile.GetComponent<Shell>().SetOwner(car.owner);
+        projectile.GetComponent<Shell>().SetOwner(owner, car);
         projectile.GetComponent<Rigidbody>().AddForce(artilleryFirePoint.forward * force, ForceMode.Impulse);
         smoke.Play();
     }

@@ -17,10 +17,10 @@ public class Shell : NetworkBehaviour
     [SerializeField] private GameObject explosionEffect;
 
     // Start is called before the first frame update
-    public void SetOwner(Player player)
+    public void SetOwner(Player player, Transform car)
     {
         this.player = player;
-        car = player.car.transform;
+        this.car = car;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -30,6 +30,7 @@ public class Shell : NetworkBehaviour
             print(collision.gameObject);
 
             float distance = Vector3.Distance(transform.position, car.position);
+            print(distance);
 
             impacted = true;
 
